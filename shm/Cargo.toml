@@ -1,0 +1,53 @@
+[package]
+name = "memlink-shm"
+version = "0.1.1"
+edition = "2021"
+rust-version = "1.70"
+authors = ["Radiiplus <radiiplus@gmail.com>"]
+license = "Apache-2.0"
+description = "High-performance shared memory IPC library with multi-priority messaging and lock-free ring buffers"
+documentation = "https://docs.rs/memlink-shm"
+repository = "https://github.com/Radiiplus/memlink"
+homepage = "https://github.com/Radiiplus/memlink"
+readme = "README.md"
+keywords = ["ipc", "shared-memory", "lock-free", "low-latency", "cross-platform"]
+categories = ["concurrency", "os"]
+exclude = [
+    ".gitignore",
+    "tests/",
+    "benches/",
+    "examples/",
+    "target/",
+    "*.log",
+    "*.pid",
+    "*.shm",
+]
+
+[dependencies]
+memmap2 = "0.9.10"
+cfg-if = "1.0.4"
+libc = "0.2.183"
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.58", features = [
+    "Win32_System_Memory",
+    "Win32_System_Threading",
+    "Win32_Foundation",
+    "Win32_Security",
+] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+criterion = "0.8.2"
+
+[[bench]]
+name = "latency"
+harness = false
+
+[[bench]]
+name = "throughput"
+harness = false
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

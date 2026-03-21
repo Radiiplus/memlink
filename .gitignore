@@ -1,0 +1,52 @@
+# Rust
+/target/
+/target-windows/
+**/target/
+
+# Build artifacts
+*.rlib
+*.dylib
+*.so
+*.dll
+*.exe
+*.pdb
+/build/
+
+# Debugger
+*.dSYM/
+
+# Benchmarks
+/criterion/
+
+# Coverage
+*.gcno
+*.gcda
+*.lcov
+coverage/
+tarpaulin-report.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# docs
+wsl.md
+
+Cargo.lock
+
+# Root src (placeholder for future workspace members)
+/src/

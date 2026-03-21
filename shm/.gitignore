@@ -1,0 +1,46 @@
+# Rust
+/target/
+/target-windows/
+
+# Build artifacts
+*.rlib
+*.dylib
+*.so
+*.dll
+*.exe
+*.pdb
+
+# Debugger
+*.dSYM/
+
+# Benchmarks
+/criterion/
+
+# Coverage
+*.gcno
+*.gcda
+*.lcov
+coverage/
+tarpaulin-report.html
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Test files
+*.pid
+*.shm

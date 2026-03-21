@@ -91,7 +91,7 @@ let handle = runtime.load(ModuleRef::parse("./plugin.so")?)?;
 let result = runtime.call(handle, "process", b"input")?;
 ```
 
-📖 [Documentation](runtime/README.md) | 📚 [API Docs](https://docs.rs/memlink-runtime) | 📊 [Benchmarks](runtime/docs/PERFORMANCE.md)
+📖 [Documentation](runtime/README.md) | 📚 [API Docs](https://docs.rs/memlink-runtime) | 📊 [Benchmarks](runtime/docs/perf.md)
 
 ---
 

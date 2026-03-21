@@ -45,7 +45,7 @@ impl WindowsMmap {
                 None,
             )
         }
-        .map_err(io::Error::other)?;
+        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
 
         let view_addr = unsafe {
             MapViewOfFile(
@@ -112,14 +112,14 @@ impl WindowsMmap {
 
         unsafe {
             FlushViewOfFile(self.view_ptr as *const _, self.size)
-                .map_err(io::Error::other)
+                .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
         }
     }
 
     pub fn flush_region(&self, offset: usize, len: usize) -> io::Result<()> {
         use windows::Win32::System::Memory::FlushViewOfFile;
 
-        if offset.checked_add(len).is_none_or(|end| end > self.size) {
+        if offset.checked_add(len).map_or(true, |end| end > self.size) {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
                 "Region exceeds mapping size",
@@ -131,7 +131,7 @@ impl WindowsMmap {
                 (self.view_ptr as usize + offset) as *const _,
                 len,
             )
-            .map_err(io::Error::other)
+            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
         }
     }
 }

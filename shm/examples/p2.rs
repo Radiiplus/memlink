@@ -1,5 +1,5 @@
-use shm::buffer::{RingBuffer, Priority as BufferPriority};
-use shm::futex::Futex;
+use memlink_shm::buffer::{RingBuffer, Priority as BufferPriority};
+use memlink_shm::futex::Futex;
 use std::env;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
@@ -58,7 +58,7 @@ fn run_daemon() {
             state.response_futex.wake_one();
 
             pings_handled += 1;
-            if pings_handled.is_multiple_of(1000) {
+            if pings_handled % 1000 == 0 {
                 let elapsed = start.elapsed();
                 let throughput = pings_handled as f64 / elapsed.as_secs_f64();
                 println!(
@@ -109,7 +109,7 @@ fn run_client() {
         if result.is_ok()
             && state.response_buffer.read_slot().is_some() {
             pongs_received += 1;
-            if pongs_received.is_multiple_of(1000) {
+            if pongs_received % 1000 == 0 {
                 let elapsed = start.elapsed();
                 let throughput = pongs_received as f64 / elapsed.as_secs_f64();
                 println!(

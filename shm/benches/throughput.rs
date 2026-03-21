@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use shm::buffer::{RingBuffer, Priority as BufferPriority};
+use memlink_shm::buffer::{RingBuffer, Priority as BufferPriority};
 use std::sync::Arc;
 use std::thread;
 
@@ -93,8 +93,8 @@ fn bench_mpsc_throughput(c: &mut Criterion) {
 }
 
 fn bench_priority_throughput(c: &mut Criterion) {
-    use shm::priority::Priority;
-    use shm::pring::PriorityRingBuffer;
+    use memlink_shm::priority::Priority;
+    use memlink_shm::pring::PriorityRingBuffer;
 
     let mut group = c.benchmark_group("priority_throughput");
 

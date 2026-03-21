@@ -1,5 +1,5 @@
 use criterion::{criterion_group, criterion_main, Criterion, BenchmarkId, Throughput};
-use shm::buffer::{RingBuffer, Priority as BufferPriority};
+use memlink_shm::buffer::{RingBuffer, Priority as BufferPriority};
 use std::sync::Arc;
 use std::thread;
 

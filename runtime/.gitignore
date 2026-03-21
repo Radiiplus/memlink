@@ -1,0 +1,22 @@
+# Build artifacts
+/target/
+target-windows/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test modules (generated during testing)
+*.so
+*.dll
+*.dylib
+
+# Benchmark results
+/target-criterion/

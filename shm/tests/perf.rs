@@ -1,4 +1,4 @@
-use shm::buffer::{RingBuffer, Priority as BufferPriority};
+use memlink_shm::buffer::{RingBuffer, Priority as BufferPriority};
 use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, Instant};

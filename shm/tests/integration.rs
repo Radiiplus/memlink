@@ -1,13 +1,13 @@
-use shm::buffer::{RingBuffer, Priority as BufferPriority};
-use shm::control::ControlRegion;
-use shm::futex::Futex;
-use shm::layout::{CONTROL_REGION_SIZE, RING_BUFFER_OFFSET};
-use shm::mmap::MmapSegment;
-use shm::platform::Platform;
-use shm::pring::PriorityRingBuffer;
-use shm::priority::{Priority, calculate_slot_distribution};
-use shm::recovery::{RecoveryManager, Heartbeat, SlotMetadata, SlotState};
-use shm::safety::{BoundsChecker, PoisonState, SafeShmAccess};
+use memlink_shm::buffer::{RingBuffer, Priority as BufferPriority};
+use memlink_shm::control::ControlRegion;
+use memlink_shm::futex::Futex;
+use memlink_shm::layout::{CONTROL_REGION_SIZE, RING_BUFFER_OFFSET};
+use memlink_shm::mmap::MmapSegment;
+use memlink_shm::platform::Platform;
+use memlink_shm::pring::PriorityRingBuffer;
+use memlink_shm::priority::{Priority, calculate_slot_distribution};
+use memlink_shm::recovery::{RecoveryManager, Heartbeat, SlotMetadata, SlotState};
+use memlink_shm::safety::{BoundsChecker, PoisonState, SafeShmAccess};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -61,7 +61,7 @@ fn integration_futex_wait_wake() {
 
     let handle = thread::spawn(move || {
         let result = futex_clone.wait(0, Some(Duration::from_secs(5)));
-        assert!(result.is_ok() || matches!(result, Err(shm::futex::FutexError::Timeout)));
+        assert!(result.is_ok() || matches!(result, Err(memlink_shm::futex::FutexError::Timeout)));
     });
 
     thread::sleep(Duration::from_millis(50));
@@ -78,7 +78,7 @@ fn integration_futex_timeout() {
     let result = futex.wait(0, Some(Duration::from_millis(50)));
     let elapsed = start.elapsed();
 
-    assert!(matches!(result, Err(shm::futex::FutexError::Timeout)));
+    assert!(matches!(result, Err(memlink_shm::futex::FutexError::Timeout)));
     assert!(elapsed >= Duration::from_millis(40));
     assert!(elapsed <= Duration::from_millis(150));
 }
@@ -191,7 +191,7 @@ fn integration_bounds_checking() {
 #[test]
 fn integration_poison_guard() {
     let poison = Arc::new(AtomicBool::new(false));
-    let guard = shm::safety::PoisonGuard::new(Arc::clone(&poison));
+    let guard = memlink_shm::safety::PoisonGuard::new(Arc::clone(&poison));
 
     assert!(poison.load(Ordering::Acquire));
     guard.disarm();
@@ -203,7 +203,7 @@ fn integration_panic_safety() {
     let poison = PoisonState::new();
     assert!(!poison.is_poisoned());
 
-    let result: Result<i32, _> = shm::safety::with_panic_protection(&poison, || {
+    let result: Result<i32, _> = memlink_shm::safety::with_panic_protection(&poison, || {
         panic!("test panic");
     });
     assert!(result.is_err());
@@ -277,19 +277,19 @@ fn integration_safe_access() {
     assert_eq!(result.unwrap(), 42);
 
     let result = access.with_safe_access(1000, 100, || 42);
-    assert!(matches!(result, Err(shm::safety::SafeAccessError::OutOfBounds)));
+    assert!(matches!(result, Err(memlink_shm::safety::SafeAccessError::OutOfBounds)));
 }
 
 #[test]
 fn integration_recovery_manager() {
     let temp_dir = tempdir().unwrap();
-    let shm_path = temp_dir.path().join("test_daemon.shm");
-    let shm_path_str = shm_path.to_str().unwrap();
+    let memlink_shm_path = temp_dir.path().join("test_daemon.memlink_shm");
+    let memlink_shm_path_str = memlink_shm_path.to_str().unwrap();
 
-    let daemon1 = RecoveryManager::new(shm_path_str);
+    let daemon1 = RecoveryManager::new(memlink_shm_path_str);
     assert!(daemon1.register_daemon().is_ok());
 
-    let daemon2 = RecoveryManager::new(shm_path_str);
+    let daemon2 = RecoveryManager::new(memlink_shm_path_str);
     assert!(daemon2.register_daemon().is_err());
 
     daemon1.unregister_daemon();

@@ -1,5 +1,19 @@
 # SHM - High-Performance Shared Memory IPC Library
 
+<table>
+<tr>
+  <td><a href="https://crates.io/crates/memlink-shm"><img src="https://img.shields.io/crates/v/memlink-shm.svg" alt="Crates.io"/></a></td>
+  <td><a href="https://docs.rs/memlink-shm"><img src="https://docs.rs/memlink-shm/badge.svg" alt="Docs"/></a></td>
+  <td><a href="LICENSE-APACHE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"/></a></td>
+  <td><a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.70%2B-orange.svg" alt="Rust"/></a></td>
+</tr>
+<tr>
+  <td><a href="https://github.com/memlink/memlink/tree/main/shm/benches"><img src="https://img.shields.io/badge/benchmarks-included-purple" alt="Benchmarks"/></a></td>
+  <td><a href="../runtime/README.md"><img src="https://img.shields.io/badge/sibling-runtime-blue" alt="Runtime"/></a></td>
+  <td><a href="examples/README.md"><img src="https://img.shields.io/badge/examples-included-green" alt="Examples"/></a></td>
+</tr>
+</table>
+
 A cross-platform, lock-free shared memory inter-process communication (IPC) library for Rust, designed for ultra-low latency and high-throughput messaging between processes.
 
 ## Features

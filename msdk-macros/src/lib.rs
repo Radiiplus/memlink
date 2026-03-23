@@ -258,11 +258,11 @@ fn generate_ffi_export(
                     let result = rt.block_on(#wrapper_name(ctx, &args));
 
                     let response = match result {
-                        Ok(data) => Response::success(data),
-                        Err(_) => Response::error(CALL_FAILURE),
+                        Ok(data) => Response::success(0, data),
+                        Err(_) => return CALL_FAILURE,
                     };
 
-                    let response_bytes = match response.to_bytes() {
+                    let response_bytes = match response.into_bytes() {
                         Ok(bytes) => bytes,
                         Err(_) => return CALL_FAILURE,
                     };
@@ -321,11 +321,11 @@ fn generate_ffi_export(
                     let result = #wrapper_name(ctx, &args);
 
                     let response = match result {
-                        Ok(data) => Response::success(data),
-                        Err(_) => Response::error(CALL_FAILURE),
+                        Ok(data) => Response::success(0, data),
+                        Err(_) => return CALL_FAILURE,
                     };
 
-                    let response_bytes = match response.to_bytes() {
+                    let response_bytes = match response.into_bytes() {
                         Ok(bytes) => bytes,
                         Err(_) => return CALL_FAILURE,
                     };

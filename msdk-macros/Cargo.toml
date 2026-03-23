@@ -1,6 +1,6 @@
 [package]
 name = "memlink-msdk-macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 rust-version = "1.80"
 authors = ["Radiiplus <radiiplus@gmail.com>"]
@@ -28,7 +28,6 @@ quote = "1.0.45"
 syn = { version = "2.0.117", features = ["full", "extra-traits"] }
 
 [dev-dependencies]
-memlink-msdk = { path = "../msdk" }
 serde = { version = "1.0.228", features = ["derive"] }
 tokio = { version = "1.50.0", features = ["full"] }
 

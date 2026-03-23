@@ -85,11 +85,11 @@ pub unsafe extern "C" fn memlink_call(
         let result_data = dispatch::dispatch_with_context(&ctx, method_hash, &args);
 
         let response = match result_data {
-            Ok(data) => Response::success(data),
+            Ok(data) => Response::success(0, data),
             Err(_) => return CALL_FAILURE,
         };
 
-        let response_bytes = match response.to_bytes() {
+        let response_bytes = match response.into_bytes() {
             Ok(bytes) => bytes,
             Err(_) => return CALL_FAILURE,
         };

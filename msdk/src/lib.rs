@@ -40,6 +40,6 @@ pub mod prelude {
     pub use crate::metrics::{increment_counter, observe_histogram, record_metric, set_gauge, MetricValue};
     pub use crate::panic::catch_module_panic;
     pub use crate::r#ref::ArenaRef;
-    pub use crate::request::{Request, Response};
-    pub use crate::serialize::{default_serializer, BincodeSerializer, Serializer};
+    pub use crate::serialize::{default_serializer, MessagePackSerializer, Serializer};
+    pub use memlink_protocol::{Request, Response, StatusCode};
 }

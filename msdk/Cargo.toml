@@ -27,7 +27,8 @@ serde = { version = "1.0.228", features = ["derive"] }
 rmp-serde = "1.3.1"
 thiserror = "2.0.18"
 tokio = { version = "1.50.0", features = ["full"] }
-memlink-msdk-macros = "0.1.0"
+memlink-msdk-macros = "0.1.2"
+memlink-protocol = "0.1.0"
 
 [dev-dependencies]
 serde = { version = "1.0.228", features = ["derive"] }

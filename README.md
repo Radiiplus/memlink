@@ -10,6 +10,7 @@
 </tr>
 <tr>
   <td><a href="https://crates.io/crates/memlink-shm"><img src="https://img.shields.io/crates/v/memlink-shm.svg" alt="SHM"/></a></td>
+  <td><a href="https://crates.io/crates/memlink-protocol"><img src="https://img.shields.io/crates/v/memlink-protocol.svg" alt="Protocol"/></a></td>
   <td><a href="https://crates.io/crates/memlink-runtime"><img src="https://img.shields.io/crates/v/memlink-runtime.svg" alt="Runtime"/></a></td>
   <td><a href="https://crates.io/crates/memlink-msdk"><img src="https://img.shields.io/crates/v/memlink-msdk.svg" alt="MSDK"/></a></td>
   <td><a href="https://crates.io/crates/memlink-msdk-macros"><img src="https://img.shields.io/crates/v/memlink-msdk-macros.svg" alt="MSDK Macros"/></a></td>
@@ -26,6 +27,7 @@ MemLink is a collection of high-performance Rust libraries for **inter-process c
 
 | Capability | Crate | Use Case |
 |------------|-------|----------|
+| **Binary Protocol** | `memlink-protocol` | Message serialization and version negotiation |
 | **Shared Memory IPC** | `memlink-shm` | Ultra-low latency process communication |
 | **Dynamic Module Loading** | `memlink-runtime` | Plugin systems, hot-reloadable code |
 | **Module SDK** | `memlink-msdk` | Build memlink modules with ease |
@@ -34,6 +36,54 @@ MemLink is a collection of high-performance Rust libraries for **inter-process c
 ---
 
 ## Crates
+
+### 📦 memlink-protocol
+
+Binary protocol definitions with MessagePack serialization and version negotiation.
+
+**Features:**
+- 📦 Fixed 32-byte message headers
+- 🔢 Magic numbers and version constants
+- 🏷️ Type aliases and enumerations
+- ❌ Comprehensive error types
+- 🔄 Version negotiation with feature flags
+- ⚡ Zero-copy message parsing
+- 🎯 Arena-backed slices
+
+**Performance:**
+
+Benchmark results from `cargo bench -p memlink-protocol`:
+
+| Operation | Time | Throughput |
+|-----------|------|------------|
+| Request serialize | 1.07 µs | 4.59 MiB/s |
+| Response deserialize | 491 ns | 10.2 MiB/s |
+| Error deserialize | 477 ns | 43.7 MiB/s |
+| Header `as_bytes()` | 46 ns | - |
+| Header `from_bytes()` | 37 ns | - |
+
+**Quick Start:**
+```rust
+use memlink_protocol::{MessageHeader, MessageType, Request, Response};
+use memlink_protocol::msgpack::MessagePackSerializer;
+use memlink_protocol::serializer::Serializer;
+
+// Create and serialize a request
+let request = Request::new(
+    1,
+    memlink_protocol::Priority::Normal,
+    "calculator",
+    "add",
+    vec![1, 2, 3, 4],
+);
+
+let bytes = MessagePackSerializer.serialize_request(&request)?;
+let parsed = MessagePackSerializer.deserialize_request(&bytes)?;
+```
+
+📖 [Documentation](protocol/README.md) | 📦 [crates.io](https://crates.io/crates/memlink-protocol) | 📚 [API Docs](https://docs.rs/memlink-protocol)
+
+---
 
 ### 📦 memlink-shm
 
@@ -191,6 +241,11 @@ let result = runtime.call(handle, "process", b"input")?;
 
 ```
 memlink/
+├── protocol/              # Binary protocol definitions
+│   ├── src/              # Source code
+│   ├── examples/         # Usage examples
+│   ├── benches/          # Performance benchmarks
+│   └── README.md         # Detailed documentation
 ├── shm/                    # Shared memory IPC library
 │   ├── src/               # Source code
 │   ├── examples/          # Usage examples
@@ -215,32 +270,42 @@ memlink/
 
 ## Installation
 
+### memlink-protocol
+
+```toml
+[dependencies]
+memlink-protocol = "0.1.0"
+
+# With shared memory integration
+memlink-protocol = { version = "0.1.0", features = ["shm"] }
+```
+
 ### memlink-shm
 
 ```toml
 [dependencies]
-memlink-shm = "0.1.0"
+memlink-shm = "0.1.3"
 ```
 
 ### memlink-runtime
 
 ```toml
 [dependencies]
-memlink-runtime = "0.1.0"
+memlink-runtime = "0.1.2"
 ```
 
 ### memlink-msdk
 
 ```toml
 [dependencies]
-memlink-msdk = "0.1.0"
+memlink-msdk = "0.1.2"
 ```
 
 ### memlink-msdk-macros
 
 ```toml
 [dependencies]
-memlink-msdk-macros = "0.1.0"
+memlink-msdk-macros = "0.1.2"
 ```
 
 Note: `memlink-msdk-macros` is automatically included when you install `memlink-msdk`.
@@ -297,11 +362,11 @@ let response = shm_client.request(&request)?;  // ~1 μs vs ~100 μs for TCP
 
 ## Platform Support
 
-| Platform | memlink-shm | memlink-runtime |
-|----------|-------------|-----------------|
-| Linux | ✅ Tested | ✅ Tested |
-| Windows | ✅ Tested | ✅ Tested |
-| macOS | ✅ Tested | ✅ Tested |
+| Platform | memlink-protocol | memlink-shm | memlink-runtime |
+|----------|------------------|-------------|-----------------|
+| Linux | ✅ Tested | ✅ Tested | ✅ Tested |
+| Windows | ✅ Tested | ✅ Tested | ✅ Tested |
+| macOS | ✅ Tested | ✅ Tested | ✅ Tested |
 
 ---
 
@@ -332,14 +397,17 @@ cargo build -p memlink-runtime
 cargo test --workspace
 
 # Test specific crate
+cargo test -p memlink-protocol
 cargo test -p memlink-shm
 cargo test -p memlink-runtime
 cargo test -p memlink-msdk
 
 # Run integration tests only
+cargo test --test integration -p memlink-protocol
 cargo test --test integration -p memlink-msdk
 
 # Run doc tests only
+cargo test --doc -p memlink-protocol
 cargo test --doc -p memlink-msdk
 ```
 
@@ -347,6 +415,7 @@ cargo test --doc -p memlink-msdk
 
 ```bash
 # Run benchmarks
+cargo bench -p memlink-protocol
 cargo bench -p memlink-shm
 cargo bench -p memlink-runtime
 
@@ -375,6 +444,10 @@ cargo clippy -p memlink-msdk-macros
 
 | Crate | Operation | Latency | Throughput |
 |-------|-----------|---------|------------|
+| **memlink-protocol** | Request serialize | 1.07 µs | 4.59 MiB/s |
+| **memlink-protocol** | Response deserialize | 491 ns | 10.2 MiB/s |
+| **memlink-protocol** | Error deserialize | 477 ns | 43.7 MiB/s |
+| **memlink-protocol** | Header `as_bytes()` | 46 ns | - |
 | **memlink-shm** | Empty message | 0.8 μs | 850K/sec |
 | **memlink-shm** | 1 KB payload | 2.8 μs | 280K/sec |
 | **memlink-msdk** | Function call (empty) | 1.14 ns | 874.6 M/sec |
@@ -384,6 +457,7 @@ cargo clippy -p memlink-msdk-macros
 | **memlink-runtime** | Method call | 210 ns | 4.7M/sec |
 
 See individual crate documentation for detailed benchmarks:
+- [Protocol Benchmarks](protocol/README.md#performance)
 - [SHM Benchmarks](shm/README.md#performance)
 - [Runtime Benchmarks](runtime/docs/PERFORMANCE.md)
 - [MSDK Benchmarks](msdk/README.md#performance)

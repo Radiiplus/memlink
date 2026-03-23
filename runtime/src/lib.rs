@@ -31,3 +31,12 @@ pub use resolver::{ArtifactHandle, ModuleRef, ModuleResolver};
 pub use runtime::{ModuleHandle, ModuleRuntime, ModuleUsage, Runtime};
 pub use safety::{MemoryTracker, SafetyConfig, StackDepth};
 pub use validation::{validate_module, CachedValidation, ValidationCache, ValidationResult};
+
+pub mod prelude {
+    pub use crate::arena::Arena;
+    pub use crate::error::{Error, Result};
+    pub use crate::instance::ModuleInstance;
+    pub use crate::resolver::ModuleRef;
+    pub use crate::runtime::Runtime;
+    pub use memlink_protocol::{Request, Response, StatusCode};
+}

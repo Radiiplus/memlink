@@ -5,12 +5,14 @@
 <table>
 <tr>
   <td><a href="LICENSE-APACHE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"/></a></td>
-  <td><a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.70%2B-orange.svg" alt="Rust"/></a></td>
+  <td><a href="https://www.rust-lang.org"><img src="https://img.shields.io/badge/rust-1.80%2B-orange.svg" alt="Rust"/></a></td>
   <td><a href="https://github.com/memlink/memlink/issues"><img src="https://img.shields.io/github/issues/memlink/memlink" alt="Issues"/></a></td>
 </tr>
 <tr>
   <td><a href="https://crates.io/crates/memlink-shm"><img src="https://img.shields.io/crates/v/memlink-shm.svg" alt="SHM"/></a></td>
   <td><a href="https://crates.io/crates/memlink-runtime"><img src="https://img.shields.io/crates/v/memlink-runtime.svg" alt="Runtime"/></a></td>
+  <td><a href="https://crates.io/crates/memlink-msdk"><img src="https://img.shields.io/crates/v/memlink-msdk.svg" alt="MSDK"/></a></td>
+  <td><a href="https://crates.io/crates/memlink-msdk-macros"><img src="https://img.shields.io/crates/v/memlink-msdk-macros.svg" alt="MSDK Macros"/></a></td>
 </tr>
 </table>
 
@@ -26,6 +28,8 @@ MemLink is a collection of high-performance Rust libraries for **inter-process c
 |------------|-------|----------|
 | **Shared Memory IPC** | `memlink-shm` | Ultra-low latency process communication |
 | **Dynamic Module Loading** | `memlink-runtime` | Plugin systems, hot-reloadable code |
+| **Module SDK** | `memlink-msdk` | Build memlink modules with ease |
+| **Proc Macros** | `memlink-msdk-macros` | Automatic code generation for modules |
 
 ---
 
@@ -59,6 +63,94 @@ let (_, data) = rb.read_slot().unwrap();
 ```
 
 📖 [Documentation](shm/README.md) | 📦 [crates.io](https://crates.io/crates/memlink-shm) | 📚 [API Docs](https://docs.rs/memlink-shm)
+
+---
+
+### 🔧 memlink-msdk
+
+SDK for building memlink modules with automatic serialization, FFI exports, and panic isolation.
+
+**Features:**
+- 🎯 `#[memlink_export]` proc macro for easy method exports
+- 🔄 Automatic serialization/deserialization (MessagePack)
+- 🛡️ Built-in panic isolation at FFI boundary
+- 📊 Arena allocation for bounded memory management
+- 🔗 Nested module-to-module calls
+- 📈 Backpressure and deadline tracking
+- 📝 Structured logging and metrics APIs
+
+**Performance:**
+
+Benchmark results from `cargo bench -p memlink-msdk`:
+
+| Benchmark | Time | Throughput |
+|-----------|------|------------|
+| Function call (empty) | 1.14 ns | 874.6 M/sec |
+| Function call + serialization | 98.8 ns | 10.1 M/sec |
+| Arena allocation (u64) | 2.41 ns | 414.8 M/sec |
+| Arena alloc + init | 3.31 ns | 301.8 M/sec |
+
+**Quick Start:**
+```rust
+use memlink_msdk::prelude::*;
+
+#[memlink_export]
+pub fn echo(ctx: &CallContext, input: String) -> Result<String> {
+    Ok(input)
+}
+
+#[memlink_export]
+pub async fn async_echo(ctx: &CallContext, data: Vec<u8>) -> Result<Vec<u8>> {
+    Ok(data)
+}
+
+#[memlink_export]
+pub fn use_arena(ctx: &CallContext) -> Result<u64> {
+    let x = ctx.arena().alloc::<u64>().ok_or(ModuleError::QuotaExceeded)?;
+    unsafe { std::ptr::write(x, 42); }
+    Ok(*x)
+}
+```
+
+📖 [Documentation](msdk/README.md) | 📚 [API Docs](https://docs.rs/memlink-msdk) | 🧪 [Examples](msdk/examples/)
+
+---
+
+### 🔮 memlink-msdk-macros
+
+Procedural macros for automatic code generation in memlink modules.
+
+**Features:**
+- 🎯 `#[memlink_export]` attribute macro for effortless method exports
+- ⚡ Compile-time FNV-1a method hash computation
+- 🔄 Automatic MessagePack serialization/deserialization
+- 🛡️ FFI boundary generation with built-in panic isolation
+- 🔀 Support for both sync and async functions
+- 🏷️ Custom method name attribution
+
+**Quick Start:**
+```rust
+use memlink_msdk::prelude::*;
+
+#[memlink_export]
+pub fn echo(ctx: &CallContext, input: String) -> Result<String> {
+    Ok(input)
+}
+
+#[memlink_export]
+pub async fn async_process(ctx: &CallContext, data: Vec<u8>) -> Result<Vec<u8>> {
+    tokio::time::sleep(std::time::Duration::from_millis(10)).await;
+    Ok(data)
+}
+```
+
+**What the Macro Generates:**
+- Args struct for parameter serialization
+- Wrapper function for serialization handling
+- FFI export function with panic isolation
+- Method dispatch table registration
+
+📖 [Documentation](msdk-macros/README.md) | 📚 [API Docs](https://docs.rs/memlink-msdk-macros) | 🧪 [Examples](msdk-macros/examples/)
 
 ---
 
@@ -109,6 +201,12 @@ memlink/
 │   ├── examples/         # Example modules and demos
 │   ├── docs/             # ABI spec and benchmarks
 │   └── README.md         # Detailed documentation
+├── msdk/                  # Module SDK
+│   ├── src/              # SDK source code
+│   ├── tests/            # Integration tests
+│   └── tests/integration.rs  # All-in-one integration test suite
+├── msdk-macros/           # Proc macros for msdk
+│   └── src/              # Macro implementations
 ├── Cargo.toml            # Workspace configuration
 └── README.md             # This file
 ```
@@ -130,6 +228,22 @@ memlink-shm = "0.1.0"
 [dependencies]
 memlink-runtime = "0.1.0"
 ```
+
+### memlink-msdk
+
+```toml
+[dependencies]
+memlink-msdk = "0.1.0"
+```
+
+### memlink-msdk-macros
+
+```toml
+[dependencies]
+memlink-msdk-macros = "0.1.0"
+```
+
+Note: `memlink-msdk-macros` is automatically included when you install `memlink-msdk`.
 
 ---
 
@@ -195,7 +309,7 @@ let response = shm_client.request(&request)?;  // ~1 μs vs ~100 μs for TCP
 
 ### Prerequisites
 
-- Rust 1.70 or later
+- Rust 1.80 or later
 - C compiler (for runtime module examples)
 - Node.js 18+ (for runtime build scripts)
 - WSL2 (for Linux builds on Windows)
@@ -220,6 +334,13 @@ cargo test --workspace
 # Test specific crate
 cargo test -p memlink-shm
 cargo test -p memlink-runtime
+cargo test -p memlink-msdk
+
+# Run integration tests only
+cargo test --test integration -p memlink-msdk
+
+# Run doc tests only
+cargo test --doc -p memlink-msdk
 ```
 
 ### Benchmarks
@@ -242,6 +363,10 @@ cargo fmt --all
 
 # Run clippy lints
 cargo clippy --workspace --all-targets -- -D warnings
+
+# Check msdk specifically
+cargo clippy -p memlink-msdk
+cargo clippy -p memlink-msdk-macros
 ```
 
 ---
@@ -252,12 +377,16 @@ cargo clippy --workspace --all-targets -- -D warnings
 |-------|-----------|---------|------------|
 | **memlink-shm** | Empty message | 0.8 μs | 850K/sec |
 | **memlink-shm** | 1 KB payload | 2.8 μs | 280K/sec |
+| **memlink-msdk** | Function call (empty) | 1.14 ns | 874.6 M/sec |
+| **memlink-msdk** | Function call + serialization | 98.8 ns | 10.1 M/sec |
+| **memlink-msdk** | Arena allocation | 2.41 ns | 414.8 M/sec |
 | **memlink-runtime** | Module load | 92 μs | - |
 | **memlink-runtime** | Method call | 210 ns | 4.7M/sec |
 
 See individual crate documentation for detailed benchmarks:
 - [SHM Benchmarks](shm/README.md#performance)
 - [Runtime Benchmarks](runtime/docs/PERFORMANCE.md)
+- [MSDK Benchmarks](msdk/README.md#performance)
 
 ---
 
@@ -272,6 +401,12 @@ See individual crate documentation for detailed benchmarks:
 - [ ] WebAssembly module support
 - [ ] Module sandboxing with seccomp/AppContainer
 - [ ] Automatic module discovery and loading
+
+### memlink-msdk
+- [ ] Full `#[memlink_export]` macro implementation
+- [ ] Zero-copy arena-based argument passing
+- [ ] Built-in metrics and logging exporters
+- [ ] Module hot-reload support
 
 ### New Components
 - [ ] `memlink-pipe` - Cross-platform named pipe abstraction

@@ -1,0 +1,37 @@
+[package]
+name = "memlink-msdk-macros"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+authors = ["Radiiplus <radiiplus@gmail.com>"]
+license = "Apache-2.0"
+description = "Procedural macros for memlink SDK - automatic serialization, FFI exports, and panic isolation"
+documentation = "https://docs.rs/memlink-msdk-macros"
+repository = "https://github.com/Radiiplus/memlink"
+homepage = "https://github.com/Radiiplus/memlink"
+readme = "README.md"
+keywords = ["memlink", "macros", "proc-macro", "ipc", "ffi"]
+categories = ["development-tools::procedural-macro-helpers", "os"]
+exclude = [
+    ".gitignore",
+    "examples/",
+    "target/",
+    "*.log",
+]
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.106"
+quote = "1.0.45"
+syn = { version = "2.0.117", features = ["full", "extra-traits"] }
+
+[dev-dependencies]
+memlink-msdk = { path = "../msdk" }
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.50.0", features = ["full"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

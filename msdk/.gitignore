@@ -1,0 +1,30 @@
+# Build output
+target/
+target-*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test artifacts
+*.pid
+*.shm
+*.log
+
+# Coverage
+*.gcno
+*.gcda
+coverage/
+lcov/
+
+# Profiling
+perf.data
+perf.data.old
+flamegraph.svg

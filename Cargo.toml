@@ -3,4 +3,6 @@ resolver = "2"
 members = [
     "shm",
     "runtime",
+    "msdk",
+    "msdk-macros",
 ]
